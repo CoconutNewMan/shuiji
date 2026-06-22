@@ -44,17 +44,17 @@ export default function HomePage() {
             <div className="card p-8 text-center">
               <div className="text-6xl font-black gradient-text mb-3">40%</div>
               <h3 className="text-xl font-bold mb-2">{t('level1_label')}</h3>
-              <p className="text-gray-500 text-sm">{t('commission_l1_desc')}</p>
+              <p className="text-gray-500 text-sm">你直接推荐的会员每月付租，你得 40%</p>
             </div>
             <div className="card p-8 text-center border-sky-200">
               <div className="text-6xl font-black gradient-text mb-3">3%</div>
               <h3 className="text-xl font-bold mb-2">{t('level2_label')}</h3>
-              <p className="text-gray-500 text-sm">{t('commission_l2_desc')}</p>
+              <p className="text-gray-500 text-sm">下线推荐的会员付租，你得 3%</p>
             </div>
             <div className="card p-8 text-center">
               <div className="text-6xl font-black gradient-text mb-3">2%</div>
               <h3 className="text-xl font-bold mb-2">{t('level3_label')}</h3>
-              <p className="text-gray-500 text-sm">{t('commission_l3_desc')}</p>
+              <p className="text-gray-500 text-sm">三层推荐的会员付租，你得 2%</p>
             </div>
           </div>
         </div>
@@ -63,7 +63,7 @@ export default function HomePage() {
       {/* CTA */}
       <section className="py-20 text-center">
         <div className="max-w-2xl mx-auto px-4">
-          <h2 className="text-4xl font-black mb-6 gradient-text">{t('cta_heading')}</h2>
+          <h2 className="text-4xl font-black mb-6 gradient-text">准备好开始了吗？</h2>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/register" className="btn-primary">{t('hero_join')}</Link>
             <Link to="/products" className="btn-secondary">{t('hero_browse')}</Link>

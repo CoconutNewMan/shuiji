@@ -54,8 +54,6 @@ export default function RegisterPage() {
 
     setLoading(false);
     if (agentError) {
-      // Clean up: sign out the auth user so they can retry registration
-      await supabase.auth.signOut();
       setError(t('error_register'));
       return;
     }

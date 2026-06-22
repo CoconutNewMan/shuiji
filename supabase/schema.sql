@@ -16,9 +16,6 @@ CREATE TABLE IF NOT EXISTS public.agents (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Unique constraint on user_id (needed for ON CONFLICT in trigger)
-ALTER TABLE public.agents ADD CONSTRAINT agents_user_id_unique UNIQUE (user_id);
-
 -- 佣金记录表
 CREATE TABLE IF NOT EXISTS public.commissions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -66,25 +63,27 @@ CREATE POLICY "agents_insert_own" ON public.agents
   FOR INSERT WITH CHECK (user_id = auth.uid());
 
 -- 允许读取推荐链（用于组织图查询——只读自己以下3代）
-DROP POLICY IF EXISTS agents_select_downlines ON public.agents;
-
-CREATE POLICY agents_select_downlines ON public.agents
+CREATE POLICY "agents_select_downlines" ON public.agents
   FOR SELECT USING (
-    -- Level 1: direct referrals of current user
-    referrer_id = (SELECT id FROM public.agents WHERE user_id = auth.uid())
-    OR
-    -- Level 2: referrals of level-1
-    referrer_id IN (
-      SELECT id FROM public.agents
-      WHERE referrer_id = (SELECT id FROM public.agents WHERE user_id = auth.uid())
-    )
-    OR
-    -- Level 3: referrals of level-2
-    referrer_id IN (
-      SELECT id FROM public.agents
-      WHERE referrer_id IN (
-        SELECT id FROM public.agents
-        WHERE referrer_id = (SELECT id FROM public.agents WHERE user_id = auth.uid())
+    id IN (
+      -- Level 1
+      SELECT id FROM public.agents WHERE referrer_id IN (
+        SELECT id FROM public.agents WHERE user_id = auth.uid()
+      )
+      UNION
+      -- Level 2
+      SELECT a2.id FROM public.agents a2
+      JOIN public.agents a1 ON a2.referrer_id = a1.id
+      WHERE a1.referrer_id IN (
+        SELECT id FROM public.agents WHERE user_id = auth.uid()
+      )
+      UNION
+      -- Level 3
+      SELECT a3.id FROM public.agents a3
+      JOIN public.agents a2 ON a3.referrer_id = a2.id
+      JOIN public.agents a1 ON a2.referrer_id = a1.id
+      WHERE a1.referrer_id IN (
+        SELECT id FROM public.agents WHERE user_id = auth.uid()
       )
     )
   );
@@ -150,28 +149,3 @@ BEGIN
   END LOOP;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Restrict distribute_commission to service_role only (webhook/Edge Function)
-REVOKE EXECUTE ON FUNCTION public.distribute_commission(UUID, NUMERIC, TEXT) FROM PUBLIC;
-REVOKE EXECUTE ON FUNCTION public.distribute_commission(UUID, NUMERIC, TEXT) FROM anon;
-REVOKE EXECUTE ON FUNCTION public.distribute_commission(UUID, NUMERIC, TEXT) FROM authenticated;
-GRANT EXECUTE ON FUNCTION public.distribute_commission(UUID, NUMERIC, TEXT) TO service_role;
-
--- ============================================
--- Trigger to auto-create agent row when auth user is created
--- (used as fallback; web app still inserts the full profile)
--- ============================================
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER AS $$
-BEGIN
-  -- Only insert if no agent row exists yet (web app may have already inserted with full data)
-  INSERT INTO public.agents (user_id, name, phone, ic_number)
-  VALUES (NEW.id, COALESCE(NEW.raw_user_meta_data->>'name', 'Unknown'), '', '')
-  ON CONFLICT (user_id) DO NOTHING;
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
