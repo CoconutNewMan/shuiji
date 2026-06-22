@@ -12,12 +12,8 @@ export default function AdminLayoutPage() {
 
   const nav = [
     { to: '/admin/dashboard', icon: '📊', label: '系统概览' },
-    { to: '/admin/tenants', icon: '🏢', label: '项目方管理' },
-    { to: '/admin/accounts', icon: '🔑', label: '子账号管理' },
-    { to: '/admin/members', icon: '👥', label: '全局会员' },
-    { to: '/admin/commissions', icon: '💰', label: '全局佣金' },
-    { to: '/admin/announcements', icon: '📢', label: '公告管理' },
-    { to: '/admin/logs', icon: '🔍', label: '系统日志' },
+    { to: '/admin/members', icon: '👥', label: '会员管理' },
+    { to: '/admin/commissions', icon: '💰', label: '佣金记录' },
   ];
 
   return (
