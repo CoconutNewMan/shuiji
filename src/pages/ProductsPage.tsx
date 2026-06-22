@@ -12,33 +12,13 @@ interface Product {
 const PRODUCTS: Product[] = [
   {
     id: 1,
-    name: { zh: '净水机 Pro 标准版', en: 'Water Purifier Pro Standard', ms: 'Penapis Air Pro Standard' },
+    name: { zh: '商业培训课程', en: 'Business Training Course', ms: 'Kursus Latihan Perniagaan' },
     features: {
-      zh: ['RO 反渗透过滤', '冷热双温', '免费安装维修'],
-      en: ['RO Filtration', 'Hot & Cold', 'Free Installation & Service'],
-      ms: ['Penapisan RO', 'Panas & Sejuk', 'Pasang & Servis Percuma'],
+      zh: ['每月 RM600 服务费', '三代佣金奖励', '7天无理由退款保障', '加入代理推广网络'],
+      en: ['RM600 monthly service fee', '3-generation commission rewards', '7-day no-reason refund guarantee', 'Join agent referral network'],
+      ms: ['Yuran perkhidmatan RM600 sebulan', 'Ganjaran komisen 3 generasi', 'Jaminan bayaran balik 7 hari', 'Sertai rangkaian ejen'],
     },
-    image: 'https://placehold.co/400x400/e0f2fe/0369a1?text=Pro',
-  },
-  {
-    id: 2,
-    name: { zh: '净水机 Plus 豪华版', en: 'Water Purifier Plus Deluxe', ms: 'Penapis Air Plus Deluxe' },
-    features: {
-      zh: ['8级过滤系统', '冷热温三温', '智能水质显示', '免费安装维修'],
-      en: ['8-Stage Filter', 'Hot/Warm/Cold', 'Smart Water Quality Display', 'Free Installation & Service'],
-      ms: ['Penapis 8 Peringkat', 'Panas/Suam/Sejuk', 'Paparan Kualiti Air Pintar', 'Pasang & Servis Percuma'],
-    },
-    image: 'https://placehold.co/400x400/e0f2fe/0369a1?text=Plus',
-  },
-  {
-    id: 3,
-    name: { zh: '净水机 Lite 入门版', en: 'Water Purifier Lite Basic', ms: 'Penapis Air Lite Asas' },
-    features: {
-      zh: ['5级过滤系统', '常温出水', '免费安装维修'],
-      en: ['5-Stage Filter', 'Room Temperature', 'Free Installation & Service'],
-      ms: ['Penapis 5 Peringkat', 'Suhu Bilik', 'Pasang & Servis Percuma'],
-    },
-    image: 'https://placehold.co/400x400/e0f2fe/0369a1?text=Lite',
+    image: 'https://placehold.co/400x400/e0f2fe/0369a1?text=课程',
   },
 ];
 
@@ -70,17 +50,21 @@ export default function ProductsPage() {
                     </li>
                   ))}
                 </ul>
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-3">
                   <div>
-                    <p className="text-xs text-gray-500 mb-1">{t('monthly_rental')}</p>
-                    <p className="text-2xl font-black gradient-text">RM_PRICE</p>
+                    <p className="text-xs text-gray-500 mb-1">{t('monthly_fee')}</p>
+                    <p className="text-2xl font-black gradient-text">RM 600</p>
+                    <p className="text-xs text-gray-400">{t('per_month')}</p>
                   </div>
                   <span className="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-semibold">
-                    40% {t('level1_label').split(' ')[0]}
+                    40% {t('commission')}
                   </span>
                 </div>
+                <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-4 text-xs text-amber-700 font-medium">
+                  🛡️ {t('refund_policy')}
+                </div>
                 <Link to="/register" className="btn-primary w-full block text-center text-sm">
-                  💧 {t('join_as_agent')}
+                  🎓 {t('join_as_agent')}
                 </Link>
               </div>
             </div>
