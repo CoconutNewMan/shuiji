@@ -1,4 +1,5 @@
 import type { TeamMember } from '../types';
+import { useTranslation } from '../lib/i18n';
 
 interface OrgNodeProps {
   member: TeamMember;
@@ -18,6 +19,7 @@ const dotColor = {
 };
 
 export default function OrgNode({ member, color }: OrgNodeProps) {
+  const { t } = useTranslation();
   return (
     <div className={`flex items-center gap-3 p-3 rounded-lg border ${colorMap[color]}`}>
       <div className={`w-8 h-8 ${dotColor[color]} rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0`}>
@@ -30,7 +32,7 @@ export default function OrgNode({ member, color }: OrgNodeProps) {
       <span className={`ml-auto text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${
         member.status === 'active' ? 'bg-green-200 text-green-800' : 'bg-gray-200 text-gray-600'
       }`}>
-        {member.status}
+        {member.status === 'active' ? t('status_active') : member.status === 'suspended' ? t('status_suspended') : t('status_inactive')}
       </span>
     </div>
   );
