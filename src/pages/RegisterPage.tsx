@@ -11,9 +11,10 @@ export default function RegisterPage() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    name: '', email: '', phone: '', ic_number: '', referrer_id: '', password: '',
+    name: '', email: '', phone: '', ic_number: '', referral_code: '', password: '',
   });
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const set = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -32,13 +33,13 @@ export default function RegisterPage() {
       return;
     }
 
-    // 2. Look up referrer agent if referrer_id provided
+    // 2. Look up referrer agent by referral_code if provided
     let referrerId: string | null = null;
-    if (form.referrer_id.trim()) {
+    if (form.referral_code.trim()) {
       const { data: referrer } = await supabase
         .from('agents')
         .select('id')
-        .eq('id', form.referrer_id.trim())
+        .eq('referral_code', form.referral_code.trim().toUpperCase())
         .single();
       referrerId = referrer?.id ?? null;
     }
@@ -58,7 +59,9 @@ export default function RegisterPage() {
       return;
     }
 
-    navigate('/login', { state: { message: t('success_register') } });
+    // 4. Show success then redirect after 2 seconds
+    setSuccess(true);
+    setTimeout(() => navigate('/login'), 2000);
   };
 
   return (
@@ -69,6 +72,12 @@ export default function RegisterPage() {
             <h1 className="text-3xl font-bold mb-2 gradient-text">{t('register_title')}</h1>
             <p className="text-gray-500">{t('register_subtitle')}</p>
           </div>
+
+          {success && (
+            <div className="mb-4 p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg text-sm text-center font-semibold">
+              {t('success_register')}
+            </div>
+          )}
 
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
@@ -98,12 +107,12 @@ export default function RegisterPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-semibold mb-2">{t('referrer_label')}</label>
+              <label className="block text-sm font-semibold mb-2">{t('referrer_code_label')}</label>
               <input
                 type="text"
-                placeholder={t('referrer_placeholder')}
-                onChange={set('referrer_id')}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-sky-600"
+                placeholder={t('referrer_code_placeholder')}
+                onChange={set('referral_code')}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-sky-600 uppercase"
               />
             </div>
             <div>
@@ -114,7 +123,7 @@ export default function RegisterPage() {
               <input type="checkbox" required className="mt-1" />
               <span className="text-sm text-gray-700">{t('terms_text')}</span>
             </label>
-            <button type="submit" disabled={loading} className="btn-primary w-full disabled:opacity-60">
+            <button type="submit" disabled={loading || success} className="btn-primary w-full disabled:opacity-60">
               {loading ? t('loading') : t('btn_register')}
             </button>
           </form>

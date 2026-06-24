@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../lib/i18n';
+import { useAuth } from '../hooks/useAuth';
 
 export default function HomePage() {
   const { t } = useTranslation();
+  const { user } = useAuth();
 
   return (
     <div>
@@ -11,17 +13,24 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
           <div>
             <div className="inline-block px-4 py-2 bg-sky-400/20 rounded-full text-sky-200 text-sm font-semibold mb-6 border border-sky-400/30">
-              💧 Pure Water, Healthy Life
+              Pure Water, Healthy Life
             </div>
             <h1 className="text-5xl font-black leading-tight mb-6">{t('hero_title')}</h1>
             <p className="text-lg text-gray-200 mb-8 leading-relaxed">{t('hero_subtitle')}</p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link to="/products" className="btn-primary bg-white text-sky-700 hover:bg-gray-100 inline-flex items-center gap-2">
-                💧 {t('hero_browse')}
+                {t('hero_browse')}
               </Link>
-              <Link to="/register" className="btn-primary inline-flex items-center gap-2">
-                🚀 {t('hero_join')}
-              </Link>
+              {!user && (
+                <Link to="/register" className="btn-primary inline-flex items-center gap-2">
+                  {t('hero_join')}
+                </Link>
+              )}
+              {user && (
+                <Link to="/dashboard" className="btn-primary inline-flex items-center gap-2">
+                  {t('nav_dashboard')}
+                </Link>
+              )}
             </div>
           </div>
           <div className="flex items-center justify-center">
@@ -65,7 +74,12 @@ export default function HomePage() {
         <div className="max-w-2xl mx-auto px-4">
           <h2 className="text-4xl font-black mb-6 gradient-text">准备好开始了吗？</h2>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/register" className="btn-primary">{t('hero_join')}</Link>
+            {!user && (
+              <Link to="/register" className="btn-primary">{t('hero_join')}</Link>
+            )}
+            {user && (
+              <Link to="/dashboard" className="btn-primary">{t('nav_dashboard')}</Link>
+            )}
             <Link to="/products" className="btn-secondary">{t('hero_browse')}</Link>
           </div>
         </div>

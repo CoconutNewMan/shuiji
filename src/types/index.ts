@@ -2,6 +2,7 @@ export interface Agent {
   id: string;
   user_id: string;
   referrer_id: string | null;
+  referral_code: string;
   name: string;
   email: string;
   phone: string;

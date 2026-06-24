@@ -71,11 +71,24 @@ export default function DashboardPage() {
   return (
     <section className="py-12">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-between mb-8">
+        {/* Header: Name + Agent ID */}
+        <div className="flex items-start justify-between mb-8 flex-wrap gap-4">
           <div>
-            <h1 className="text-3xl font-black">{t('dashboard_title')}</h1>
-            <p className="text-gray-500 mt-1">{agent?.name}</p>
+            <h1 className="text-3xl font-black">
+              {t('hello_name')}{agent?.name ?? ''}
+            </h1>
+            <p className="text-gray-500 mt-1">{t('dashboard_title')}</p>
+            {agent?.referral_code && (
+              <div className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-sky-50 border border-sky-200 rounded-xl">
+                <span className="text-sm font-semibold text-gray-600">{t('my_agent_id')}:</span>
+                <span className="font-black text-sky-700 text-lg tracking-widest">{agent.referral_code}</span>
+              </div>
+            )}
           </div>
+          {/* Buy Course CTA */}
+          <Link to="/products" className="btn-primary inline-flex items-center gap-2 text-base">
+            💧 {t('buy_course')}
+          </Link>
         </div>
 
         {/* Stats */}
@@ -120,9 +133,11 @@ export default function DashboardPage() {
             <p className="text-gray-500 text-sm mb-4">
               {t('monthly_commission')}: RM {monthlyCommission.toFixed(2)}
             </p>
-            <p className="text-xs text-gray-400">
-              Agent ID: {agent?.id?.slice(0, 8)}
-            </p>
+            {agent?.referral_code && (
+              <p className="text-xs text-gray-400">
+                {t('my_agent_id')}: {agent.referral_code}
+              </p>
+            )}
           </div>
         </div>
       </div>
