@@ -9,6 +9,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import OrgChartPage from './pages/OrgChartPage';
+import SettingsPage from './pages/SettingsPage';
 import AdminLoginPage from './pages/admin/AdminLoginPage';
 import AdminLayoutPage from './pages/admin/AdminLayoutPage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
@@ -50,6 +51,9 @@ export default function App() {
                 } />
                 <Route path="/org" element={
                   <ProtectedRoute><OrgChartPage /></ProtectedRoute>
+                } />
+                <Route path="/settings" element={
+                  <ProtectedRoute><SettingsPage /></ProtectedRoute>
                 } />
               </Routes>
             </main>

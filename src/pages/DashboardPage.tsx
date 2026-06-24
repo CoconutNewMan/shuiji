@@ -75,15 +75,15 @@ export default function DashboardPage() {
         <div className="flex items-start justify-between mb-8 flex-wrap gap-4">
           <div>
             <h1 className="text-3xl font-black">
-              {t('hello_name')}{agent?.name ?? ''}
+              {t('hello_name')}{agent?.name || user?.email || ''}
             </h1>
             <p className="text-gray-500 mt-1">{t('dashboard_title')}</p>
-            {agent?.referral_code && (
-              <div className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-sky-50 border border-sky-200 rounded-xl">
-                <span className="text-sm font-semibold text-gray-600">{t('my_agent_id')}:</span>
-                <span className="font-black text-sky-700 text-lg tracking-widest">{agent.referral_code}</span>
-              </div>
-            )}
+            <div className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-sky-50 border border-sky-200 rounded-xl">
+              <span className="text-sm font-semibold text-gray-600">{t('my_agent_id')}:</span>
+              <span className="font-black text-sky-700 text-lg tracking-widest">
+                {agent?.referral_code || '—'}
+              </span>
+            </div>
           </div>
           {/* Buy Course CTA */}
           <Link to="/products" className="btn-primary inline-flex items-center gap-2 text-base">
@@ -133,11 +133,9 @@ export default function DashboardPage() {
             <p className="text-gray-500 text-sm mb-4">
               {t('monthly_commission')}: RM {monthlyCommission.toFixed(2)}
             </p>
-            {agent?.referral_code && (
-              <p className="text-xs text-gray-400">
-                {t('my_agent_id')}: {agent.referral_code}
-              </p>
-            )}
+            <p className="text-xs text-gray-400">
+              {t('my_agent_id')}: {agent?.referral_code || '—'}
+            </p>
           </div>
         </div>
       </div>

@@ -52,6 +52,9 @@ export default function Navbar() {
               <Link to="/dashboard" className="text-gray-700 hover:text-sky-600 font-medium transition-colors">
                 {t('nav_dashboard')}
               </Link>
+              <Link to="/settings" className="text-gray-700 hover:text-sky-600 font-medium transition-colors">
+                {t('nav_settings')}
+              </Link>
               <button onClick={handleSignOut} className="text-gray-700 hover:text-sky-600 font-medium transition-colors">
                 {t('nav_logout')}
               </button>
@@ -64,11 +67,17 @@ export default function Navbar() {
         </nav>
 
         {/* User Info */}
-        {user && agentInfo && (
+        {user && (
           <div className="hidden md:flex items-center gap-2 text-sm bg-sky-50 border border-sky-200 rounded-lg px-3 py-1.5">
-            <span className="font-semibold text-gray-800">{agentInfo.name}</span>
-            <span className="text-gray-400">|</span>
-            <span className="text-sky-600 font-mono font-bold">{agentInfo.referral_code}</span>
+            {agentInfo ? (
+              <>
+                <span className="font-semibold text-gray-800">{agentInfo.name}</span>
+                <span className="text-gray-400">|</span>
+                <span className="text-sky-600 font-mono font-bold">{agentInfo.referral_code}</span>
+              </>
+            ) : (
+              <span className="font-semibold text-gray-800">{user.email}</span>
+            )}
           </div>
         )}
 
