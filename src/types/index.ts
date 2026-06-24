@@ -70,7 +70,7 @@ export interface AICopy {
   style: AdStyle;
   headline: string;
   body_text: string;
-  cta_suggestions: string[];
+  cta_suggestions?: string[];
   image_suggestion?: string;
   used_in_ad_id?: string;
   created_at: string;

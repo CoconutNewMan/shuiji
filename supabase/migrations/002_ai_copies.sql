@@ -8,7 +8,7 @@ CREATE TABLE ai_copies (
   cta_suggestions JSONB,  -- ["Button 1", "Button 2", "Button 3"]
   image_suggestion VARCHAR,  -- Frame number or URL
   used_in_ad_id UUID REFERENCES ads(id),
-  created_at TIMESTAMP DEFAULT NOW(),
+  created_at TIMESTAMP DEFAULT NOW() NOT NULL,
   UNIQUE(campaign_id, video_input_id, style)
 );
 

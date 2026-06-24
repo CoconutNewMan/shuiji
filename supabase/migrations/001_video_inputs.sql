@@ -6,10 +6,10 @@ CREATE TABLE video_inputs (
   platform VARCHAR NOT NULL,  -- 'tiktok', 'youtube', 'instagram', 'xiaohongshu', 'douyin'
   extracted_text TEXT,
   extraction_status VARCHAR DEFAULT 'pending',  -- 'pending', 'processing', 'completed', 'failed'
-  extraction_error_message VARCHAR,
+  extraction_error_message TEXT,
   extracted_at TIMESTAMP,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW(),
+  created_at TIMESTAMP DEFAULT NOW() NOT NULL,
+  updated_at TIMESTAMP DEFAULT NOW() NOT NULL,
   UNIQUE(campaign_id, video_url)
 );
 
