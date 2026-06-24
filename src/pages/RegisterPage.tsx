@@ -28,7 +28,7 @@ export default function RegisterPage() {
     // 1. Create Supabase auth user
     const { data, error: signUpError } = await signUp(form.email, form.password);
     if (signUpError || !data.user) {
-      setError(t('error_register'));
+      setError(`注册失败: ${signUpError?.message ?? '未知错误'}`);
       setLoading(false);
       return;
     }
@@ -55,7 +55,7 @@ export default function RegisterPage() {
 
     setLoading(false);
     if (agentError) {
-      setError(t('error_register'));
+      setError(`创建档案失败: ${agentError.message}`);
       return;
     }
 
