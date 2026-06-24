@@ -29,7 +29,7 @@ export default function VideoUploader({ campaignId, onVideoUploaded }: VideoUplo
       await uploadVideoFile(campaignId, file);
       onVideoUploaded();
     } catch (err) {
-      console.error('Upload failed:', err);
+      // Error already handled by useVideoUpload hook
     }
   }
 
@@ -42,7 +42,7 @@ export default function VideoUploader({ campaignId, onVideoUploaded }: VideoUplo
       setVideoUrl('');
       onVideoUploaded();
     } catch (err) {
-      console.error('Link submission failed:', err);
+      // Error already handled by useVideoUpload hook
     }
   }
 

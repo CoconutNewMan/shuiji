@@ -45,7 +45,7 @@ export interface TeamMember {
 export type Lang = 'zh' | 'en' | 'ms';
 
 // Task 1: Video-to-Ad Platform Types
-export type VideoPlatform = 'tiktok' | 'youtube' | 'instagram' | 'xiaohongshu' | 'douyin';
+export type VideoPlatform = 'tiktok' | 'youtube' | 'instagram' | 'xiaohongshu' | 'douyin' | 'uploaded';
 export type ExtractionStatus = 'pending' | 'processing' | 'completed' | 'failed';
 export type AdStyle = '销售驱动' | '教育科普' | '娱乐感性';
 
