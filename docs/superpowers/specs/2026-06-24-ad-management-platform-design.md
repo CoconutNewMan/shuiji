@@ -8,36 +8,43 @@
 
 ## Executive Summary
 
-A unified advertising management platform for e-commerce sellers that consolidates Facebook Ads, Google Ads, and competitor intelligence into a single dashboard. MVP focuses on **Campaign Management + AI Copy Generation + Competitor Monitoring** for two platforms (Facebook + Google), with automatic optimization and hourly data sync.
+A unified advertising management platform for e-commerce sellers that consolidates multi-platform ad management, video-driven copy generation, and competitor intelligence. MVP Phase 1 focuses on **Video-to-Ad Copy Generation** (upload any video → auto-extract text → rewrite as ads → publish to Facebook + Google), with automatic optimization and hourly data sync.
 
 **Core Value Proposition:** 
-- Reduce campaign management time by 70% (1 platform instead of 3+ tools)
-- Generate creative copy variants from competitor analysis (10+ angles automatically)
-- Auto-optimize budget allocation without manual intervention
+- Turn any reference video into multi-variant ad copy in < 2 minutes
+- One-click publish to Facebook + Google simultaneously
+- Auto-optimize budget allocation and pause underperformers without manual intervention
+- 50% faster copywriting workflow (ref video vs. manual writing)
 
 ---
 
 ## 1. Product Scope
 
-### 1.1 MVP Phase 1 (Weeks 1-2)
+### 1.1 MVP Phase 1 (Weeks 1-2): Video-to-Ad Copy
 
 **Included Features:**
+- ✅ Video input (link paste + file upload)
+- ✅ Multi-platform video support (TikTok, YouTube, Instagram Reels, 小红书, 抖音)
+- ✅ Auto video text extraction (字幕/OCR)
+- ✅ AI-powered copy rewriting (3 style variants: 销售驱动, 教育科普, 娱乐感性)
+- ✅ Product info integration
 - ✅ Multi-account management (Facebook + Google Ads)
+- ✅ One-click publish to both platforms
 - ✅ Campaign CRUD (Create, Read, Update, Delete)
-- ✅ AI-powered copy generation (5-10 variants per angle)
-- ✅ Competitor ad scraping (hourly)
-- ✅ Competitor angle extraction
 - ✅ Auto-optimizer (hourly rules-based)
 - ✅ Unified analytics dashboard
 - ✅ User authentication & subscription management
 - ✅ Email notifications
 - ✅ Basic reporting
 
-**Excluded (Future Phases):**
-- ❌ TikTok Ads (Phase 2)
-- ❌ SEO tools (Phase 2)
-- ❌ AI image/video generation (Phase 2)
-- ❌ Advanced ML optimization (Bayesian, multi-armed bandit)
+**Phase 2 (Later):**
+- ⏳ Competitor ad auto-scraping (hourly)
+- ⏳ TikTok Ads support
+- ⏳ SEO tools
+- ⏳ AI image/video generation
+- ⏳ Advanced ML optimization
+
+**Excluded:**
 - ❌ Team collaboration
 - ❌ White-label support
 - ❌ Mobile app
@@ -70,10 +77,14 @@ A unified advertising management platform for e-commerce sellers that consolidat
   - Inefficient budget allocation (spreads spend evenly)
 
 **Core Workflow:**
-1. Input product info → System generates copy variants
-2. Select preferred copy + upload image → One-click launch to both platforms
-3. System monitors performance hourly → Auto-pauses underperformers
-4. Receive daily performance summary + competitor alerts
+1. Paste video link OR upload video file
+2. System auto-extracts text/字幕 from video
+3. Input product info (name, description, key features)
+4. Choose ad style: 销售驱动 / 教育科普 / 娱乐感性
+5. System generates 3 copy variants + suggests CTA + recommends image
+6. One-click publish to Facebook + Google
+7. System monitors performance hourly → Auto-pauses underperformers < 50% ROI
+8. Receive daily performance summary
 
 ### 2.2 Admin/Support User (Future)
 
@@ -255,7 +266,20 @@ CREATE TABLE ads (
   created_at TIMESTAMP
 );
 
--- Competitor Ads (scraped data)
+-- Video Input Source (user-provided reference videos)
+CREATE TABLE video_inputs (
+  id UUID PRIMARY KEY,
+  campaign_id UUID REFERENCES campaigns(id),
+  video_url VARCHAR,
+  video_file_url VARCHAR,
+  platform VARCHAR,  -- 'tiktok', 'youtube', 'instagram', 'xiaohongshu', 'douyin'
+  extracted_text TEXT,
+  extraction_status ENUM('pending', 'processing', 'completed', 'failed'),
+  extracted_at TIMESTAMP,
+  created_at TIMESTAMP
+);
+
+-- Competitor Ads (scraped data - Phase 2)
 CREATE TABLE competitor_ads (
   id UUID PRIMARY KEY,
   campaign_id UUID REFERENCES campaigns(id),
@@ -318,31 +342,44 @@ CREATE TABLE notifications (
 ### 4.2 Data Flow Diagram
 
 ```
-User Input (Product Info)
+PHASE 1: Video-to-Ad Copy Generation
+===================================
+
+User Input (Video Link or File)
         ↓
-┌───────────────────────┐
-│ Campaign Manager      │ → Creates campaign record
-└───────────────────────┘
+┌──────────────────────────┐
+│ Video Input Handler      │ → Store video_url or upload to S3
+└──────────────────────────┘
         ↓
-┌───────────────────────┐
-│ Competitor Scraper    │ → Fetches competitor ads
-└───────────────────────┘
+┌──────────────────────────┐
+│ Video Text Extractor     │ → Get 字幕/OCR from video
+├──────────────────────────┤
+│ (Puppeteer / FFmpeg)     │
+└──────────────────────────┘
         ↓
-┌───────────────────────┐
-│ AI Copy Generator     │ → Generates 10 variants
-└───────────────────────┘
+User Input (Product Info + Ad Style)
         ↓
-User Selects Copy + Image
+┌──────────────────────────┐
+│ AI Copy Generator        │ → Rewrite video text as ads (3 styles)
+├──────────────────────────┤
+│ (Claude API)             │ → 销售驱动 / 教育科普 / 娱乐感性
+└──────────────────────────┘
         ↓
-┌───────────────────────┐
-│ Publish to Platforms  │ → POST to FB + GA APIs
-└───────────────────────┘
+User Selects Copy + Suggests CTA + Image
         ↓
-[Hourly] Analytics Aggregator → Fetches metrics from APIs
+┌──────────────────────────┐
+│ Publish to Platforms     │ → POST to FB + GA APIs
+└──────────────────────────┘
         ↓
-[Hourly] Auto-Optimizer → Updates ad status based on rules
+[Hourly] Analytics Aggregator → Fetches metrics
         ↓
-[Hourly] Notification Service → Sends alerts to user
+[Hourly] Auto-Optimizer → Pauses if ROAS < 50%
+        ↓
+[Daily] Notification Service → Performance summary
+
+PHASE 2: Competitor Monitoring (Future)
+=========================================
+[Hourly] Competitor Scraper → Monitors competitor ads
 ```
 
 ---
@@ -354,117 +391,139 @@ User Selects Copy + Image
 **Purpose:** Create, edit, and manage advertising campaigns across platforms
 
 **Inputs:**
-- Product name, description, category
-- Target audience (age, interests, geography)
-- Budget (total + daily)
+- Video link or file (TikTok, YouTube, IG Reels, 小红书, 抖音)
+- Product name, description, key features
+- Target budget (total + daily)
 - Platforms to deploy (Facebook, Google, or both)
 
 **Process:**
-1. Validate inputs
+1. Validate video URL or upload file to S3
 2. Create campaign record in PostgreSQL
-3. Fetch 3-5 competitor ads (via Scraper)
-4. Extract angles from competitor copy (via Claude API)
-5. Generate AI copy variants (via Claude API)
+3. Queue video for text extraction (via Video Extractor)
+4. User inputs product info + chooses ad style
+5. Generate AI copy variants from extracted text (via Claude API)
 6. Suggest budget split (60% FB, 40% GA default)
-7. Recommend image sizes and formats
+7. Recommend CTA and image sizes
 
 **Output:**
-- Campaign dashboard with AI-generated copy options
-- Suggested configurations for each platform
+- Campaign dashboard with 3 style variants
+- Suggested CTA options
+- Recommended image dimensions per platform
+- One-click publish button
 
 **Error Handling:**
+- Invalid video URL → Show error, suggest supported platforms
+- Video extraction fails → Show original video link, let user manually input text
 - Invalid budget → Show error, suggest minimum ($5/day)
-- No competitor data → Proceed with generic angles
 - API timeout → Retry 3 times with exponential backoff
 
 ---
 
-### 5.2 AI Copy Generator
+### 5.2 Video Text Extractor
 
-**Purpose:** Generate multiple copy angles and variants based on product info and competitor analysis
+**Purpose:** Extract text/字幕 from video (any platform)
 
 **Inputs:**
-- Campaign data (product, audience)
-- Competitor ads (extracted angles)
-- User preferences (tone, CTA type)
+- Video URL (TikTok, YouTube, Instagram, 小红书, 抖音) OR uploaded video file
+
+**Supported Platforms:**
+- YouTube: Extract auto-captions or CC
+- TikTok: Use CapCut API or Puppeteer + OCR
+- Instagram Reels: Puppeteer + OCR
+- 小红书: Browser automation + OCR
+- 抖音: Browser automation + OCR
 
 **Process:**
-1. Fetch competitor angles from database
-2. Call Claude API with prompt:
-   ```
-   Product: [name]
-   Description: [desc]
-   Competitor angles found: [angles]
-   
-   Generate 5 different marketing angles for this product.
-   For each angle, create 3 copy variants (headline + body).
-   Format: JSON with angle name, variants[], CTA suggestions
-   ```
-3. Store generated copies in `ai_copies` table
-4. Calculate estimated performance score (heuristic)
+1. Validate video URL or uploaded file
+2. For URLs: Use platform-specific API (YouTube API) or Puppeteer
+3. For files: Use FFmpeg + speech-to-text (Whisper API)
+4. Extract text/字幕 with timestamps
+5. Clean and normalize text
+6. Store in `video_inputs` table
+7. Alert user when complete
 
 **Output:**
 ```json
 {
-  "angles": [
+  "video_id": "uuid",
+  "extracted_text": "原视频内容文字...",
+  "duration_seconds": 45,
+  "platform": "tiktok",
+  "status": "completed",
+  "confidence_score": 0.95
+}
+```
+
+**Error Handling:**
+- Video not found → Show friendly error with supported platforms
+- Extraction timeout → Queue for async processing, notify user when ready
+- No speech/text detected → Allow user to manually input text
+
+**Cost Estimate:** $0.05-0.20 per video (Whisper API for uploads)
+
+---
+
+### 5.3 AI Copy Generator
+
+**Purpose:** Rewrite video text as advertising copy in multiple styles
+
+**Inputs:**
+- Extracted video text
+- Product name, description, features
+- Ad style: 销售驱动 (focus on benefits/offers), 教育科普 (educational/how-to), 娱乐感性 (emotional/entertaining)
+
+**Process:**
+1. Fetch extracted text from `video_inputs` table
+2. Call Claude API with prompt:
+   ```
+   Video text: "[extracted_text]"
+   
+   Product: [name]
+   Description: [desc]
+   Key features: [features]
+   
+   Rewrite the video content as 3 different ad copy styles:
+   1. 销售驱动 - Focus on discounts, limited offers, immediate benefits
+   2. 教育科普 - Focus on how-to, tips, value education
+   3. 娱乐感性 - Focus on entertainment, emotion, FOMO
+   
+   For each style, generate:
+   - Headline (30 chars max)
+   - Body text (150 chars max)
+   - 3 CTA suggestions
+   
+   Format: JSON
+   ```
+3. Store generated copies in `ai_copies` table
+4. Suggest optimal image/video frame from original video
+
+**Output:**
+```json
+{
+  "styles": [
     {
-      "name": "Cost Savings",
-      "variants": [
-        {
-          "headline": "Save 50% on shipping",
-          "body": "Free delivery on all orders over $30"
-        },
-        {
-          "headline": "50% cheaper than competitors",
-          "body": "Quality product at half the price"
-        }
-      ],
-      "cta_suggestions": ["Shop Now", "Get Offer"]
+      "style": "销售驱动",
+      "headline": "限时优惠 50% 折扣",
+      "body_text": "今天下单送免费运费，仅剩 12 件库存！",
+      "cta_suggestions": ["立即购买", "限时抢购", "查看详情"]
+    },
+    {
+      "style": "教育科普",
+      "headline": "教你如何选择最适合的产品",
+      "body_text": "专家建议：了解这 5 点后再购买，省钱又安心。",
+      "cta_suggestions": ["了解更多", "看教程", "咨询专家"]
+    },
+    {
+      "style": "娱乐感性",
+      "headline": "你的朋友都在用，你还在等什么？",
+      "body_text": "他们已经体验到了快乐，现在轮到你了！",
+      "cta_suggestions": ["加入我们", "不要错过", "现在体验"]
     }
   ]
 }
 ```
 
-**Cost Estimate:** $0.50-1.00 per campaign (10 variants)
-
----
-
-### 5.3 Competitor Scraper
-
-**Purpose:** Monitor competitor ads and extract marketing angles
-
-**Frequency:** Hourly (scheduled cron job)
-
-**Process:**
-1. Query `competitor_urls` table for monitored brands
-2. Use Puppeteer to navigate ads library (Facebook) or search ads (Google)
-3. Extract: ad text, images, CTA, audience targeting (if visible)
-4. Store raw data in `competitor_ads` table
-5. Call Claude to analyze:
-   ```
-   Analyze these competitor ads and extract:
-   - Marketing angles (5-10)
-   - Value propositions
-   - CTAs used
-   - Target audience signals
-   ```
-6. Store extracted angles in JSONB
-7. Alert user if competitor changed strategy
-
-**Output:**
-```json
-{
-  "competitor_name": "Brand X",
-  "angles": ["Free Shipping", "Quality", "Fast Delivery"],
-  "ctas": ["Shop Now", "Learn More"],
-  "changes_detected": true
-}
-```
-
-**Rate Limits:**
-- Facebook Ads Library: 5 queries/minute
-- Google Ads: 100 queries/day
-- Max 10 competitors tracked per user
+**Cost Estimate:** $0.50 per campaign (Claude API call)
 
 ---
 
@@ -653,11 +712,24 @@ GET    /api/campaigns/:id/analytics Get analytics for campaign
 GET    /api/campaigns/:id/ads      Get all ads in campaign
 ```
 
+**Video Input Endpoints:**
+```
+POST   /api/campaigns/:id/video/upload     Upload video file
+POST   /api/campaigns/:id/video/extract    Extract text from video URL
+GET    /api/campaigns/:id/video/status     Check extraction status
+```
+
 **Copy Generation Endpoints:**
 ```
-POST   /api/campaigns/:id/generate-copy   Generate AI copy
+POST   /api/campaigns/:id/generate-copy   Generate AI copy (from video text)
 GET    /api/campaigns/:id/copies          List generated copies
 DELETE /api/campaigns/:id/copies/:copy_id Delete a copy variant
+```
+
+**Publish Endpoints:**
+```
+POST   /api/campaigns/:id/publish         Publish to Facebook + Google
+GET    /api/campaigns/:id/publish-status  Check publish status
 ```
 
 **Analytics Endpoints:**
@@ -667,7 +739,7 @@ GET    /api/analytics/campaigns/:id       Campaign performance
 GET    /api/analytics/compare             Compare platforms
 ```
 
-**Competitor Endpoints:**
+**Competitor Endpoints (Phase 2):**
 ```
 GET    /api/competitors/ads                List monitored competitors
 POST   /api/competitors/monitor            Add competitor to monitor
@@ -808,33 +880,43 @@ Live to users
 
 ---
 
-## 12. Success Criteria (MVP)
+## 12. Success Criteria (MVP Phase 1)
 
 **Technical:**
-- ✅ All core APIs functional (Campaign, Copy, Analytics)
-- ✅ Data sync successful 99%+ of the time
+- ✅ Video text extraction working for all 5 platforms (TikTok, YouTube, IG, 小红书, 抖音)
+- ✅ AI copy generation with 3 styles (销售驱动, 教育科普, 娱乐感性)
+- ✅ Publish to Facebook + Google simultaneously
+- ✅ Analytics aggregation 99%+ success rate
 - ✅ Page load < 2 seconds
 - ✅ No critical bugs in production
 
 **User:**
-- ✅ 5+ beta users successfully launch campaigns
-- ✅ Campaign creation < 5 minutes
+- ✅ 5+ beta users successfully launch campaigns from video
+- ✅ Campaign creation < 5 minutes (upload video → publish)
+- ✅ Video text extraction successful for 90%+ of videos
 - ✅ Auto-optimizer makes at least 1 decision per user
 - ✅ User satisfaction (NPS) > 50
 
 **Business:**
-- ✅ Ready for public beta (Phase 1.5)
-- ✅ Cost per campaign < $1
+- ✅ Ready for public beta
+- ✅ Cost per campaign < $1 (including video extraction + AI copy)
 - ✅ No data loss or security incidents
 
 ---
 
-## 13. Phase 2+ Roadmap (Out of Scope)
+## 13. Phase 2 Roadmap (Future)
 
+**Phase 2 (Weeks 3-4):**
+- **Competitor ad auto-scraping** (Facebook Ads Library, Google Ads)
+- **Extended video platform support** (more sources)
+- **Advanced optimization** (rules beyond ROAS threshold)
+- **Competitor strategy alerts** (detect angle changes)
+
+**Phase 3+ (Future):**
 - **TikTok Ads integration**
 - **SEO tools (keyword research, rank tracking)**
 - **AI image/video generation (DALL-E, Runway)**
-- **Advanced optimization (multi-armed bandit, Bayesian)**
+- **Advanced ML optimization (multi-armed bandit, Bayesian)**
 - **Team collaboration & approval workflows**
 - **Webhooks & Zapier integration**
 - **White-label platform**
@@ -863,18 +945,25 @@ Live to users
     /campaigns
       CampaignList.tsx
       CampaignDetail.tsx
-      CampaignBuilder.tsx
+      CampaignBuilder.tsx (video input + style selection)
     /analytics
       AnalyticsDashboard.tsx
       CompareView.tsx
   /components
-    CampaignForm.tsx
+    VideoUploader.tsx (handles file + URL input)
+    VideoExtractorStatus.tsx (shows extraction progress)
+    CopyStyleSelector.tsx (销售驱动/教育科普/娱乐感性)
     CopyVariantSelector.tsx
     AnalyticsChart.tsx
-    CompetitorAlerts.tsx
+    PublishModal.tsx (one-click publish to FB + GA)
   /hooks
     useCampaigns.ts
     useAnalytics.ts
+    useVideoExtraction.ts
+    useCopyGeneration.ts
+  /services
+    videoService.ts (upload, extract, track status)
+    publishService.ts (FB + GA APIs)
     useAIGeneratedCopy.ts
   /lib
     api/
