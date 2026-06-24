@@ -43,3 +43,63 @@ export interface TeamMember {
 }
 
 export type Lang = 'zh' | 'en' | 'ms';
+
+// Task 1: Video-to-Ad Platform Types
+export type VideoPlatform = 'tiktok' | 'youtube' | 'instagram' | 'xiaohongshu' | 'douyin';
+export type ExtractionStatus = 'pending' | 'processing' | 'completed' | 'failed';
+export type AdStyle = '销售驱动' | '教育科普' | '娱乐感性';
+
+export interface VideoInput {
+  id: string;
+  campaign_id: string;
+  video_url?: string;
+  video_file_url?: string;
+  platform: VideoPlatform;
+  extracted_text?: string;
+  extraction_status: ExtractionStatus;
+  extraction_error_message?: string;
+  extracted_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AICopy {
+  id: string;
+  campaign_id: string;
+  video_input_id: string;
+  style: AdStyle;
+  headline: string;
+  body_text: string;
+  cta_suggestions: string[];
+  image_suggestion?: string;
+  used_in_ad_id?: string;
+  created_at: string;
+}
+
+export interface Campaign {
+  id: string;
+  user_id: string;
+  name: string;
+  product_name: string;
+  product_description: string;
+  product_features: string;
+  budget_daily: number;
+  budget_total: number;
+  status: 'draft' | 'active' | 'paused' | 'ended';
+  created_at: string;
+}
+
+export interface Ad {
+  id: string;
+  campaign_id: string;
+  headline: string;
+  body_text: string;
+  cta: string;
+  image_url?: string;
+  video_url?: string;
+  landing_url: string;
+  status: 'active' | 'paused' | 'ended';
+  style: AdStyle;
+  ai_generated: boolean;
+  created_at: string;
+}
