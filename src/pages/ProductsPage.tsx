@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../lib/i18n';
+import { useAuth } from '../hooks/useAuth';
 import type { Lang } from '../types';
 
 interface Product {
@@ -24,6 +25,7 @@ const PRODUCTS: Product[] = [
 
 export default function ProductsPage() {
   const { t, lang } = useTranslation();
+  const { user } = useAuth();
 
   return (
     <section className="py-20">
@@ -63,9 +65,18 @@ export default function ProductsPage() {
                 <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-4 text-xs text-amber-700 font-medium">
                   🛡️ {t('refund_policy')}
                 </div>
-                <Link to="/register" className="btn-primary w-full block text-center text-sm">
-                  🎓 {t('join_as_agent')}
-                </Link>
+                {user ? (
+                  <button
+                    onClick={() => alert('Payment gateway coming soon — Fiuu integration in progress')}
+                    className="btn-primary w-full block text-center text-sm"
+                  >
+                    💳 立即购买 RM600/月
+                  </button>
+                ) : (
+                  <Link to="/register" className="btn-primary w-full block text-center text-sm">
+                    🎓 {t('join_as_agent')}
+                  </Link>
+                )}
               </div>
             </div>
           ))}

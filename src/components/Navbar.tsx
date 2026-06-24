@@ -1,12 +1,21 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { useTranslation } from '../lib/i18n';
 import { useAuth } from '../hooks/useAuth';
+import { supabase } from '../lib/supabase';
 import type { Lang } from '../types';
 
 export default function Navbar() {
   const { t, lang, setLang } = useTranslation();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const [agentInfo, setAgentInfo] = useState<{ name: string; referral_code: string } | null>(null);
+
+  useEffect(() => {
+    if (!user) { setAgentInfo(null); return; }
+    supabase.from('agents').select('name, referral_code').eq('user_id', user.id).single()
+      .then(({ data }) => setAgentInfo(data));
+  }, [user]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -43,10 +52,7 @@ export default function Navbar() {
               <Link to="/dashboard" className="text-gray-700 hover:text-sky-600 font-medium transition-colors">
                 {t('nav_dashboard')}
               </Link>
-              <button
-                onClick={handleSignOut}
-                className="text-gray-700 hover:text-sky-600 font-medium transition-colors"
-              >
+              <button onClick={handleSignOut} className="text-gray-700 hover:text-sky-600 font-medium transition-colors">
                 {t('nav_logout')}
               </button>
             </>
@@ -56,6 +62,15 @@ export default function Navbar() {
             </Link>
           )}
         </nav>
+
+        {/* User Info */}
+        {user && agentInfo && (
+          <div className="hidden md:flex items-center gap-2 text-sm bg-sky-50 border border-sky-200 rounded-lg px-3 py-1.5">
+            <span className="font-semibold text-gray-800">{agentInfo.name}</span>
+            <span className="text-gray-400">|</span>
+            <span className="text-sky-600 font-mono font-bold">{agentInfo.referral_code}</span>
+          </div>
+        )}
 
         {/* Language Switcher */}
         <div className="flex items-center gap-1 text-sm">
