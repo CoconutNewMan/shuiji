@@ -1,6 +1,6 @@
 CREATE TABLE campaigns (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   name VARCHAR NOT NULL,
   product_name VARCHAR NOT NULL,
   product_description TEXT NOT NULL,
