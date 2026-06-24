@@ -17,7 +17,17 @@ export default function AdminLoginPage() {
     setError('');
     const { error } = await signIn(email, password);
     if (error) {
-      setError('登录失败，请检查邮箱和密码');
+      setError(`登录失败: ${error.message}`);
+      setLoading(false);
+      return;
+    }
+    // Check admin status
+    const { supabase } = await import('../../lib/supabase');
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setError('登录失败: 无法获取用户信息'); setLoading(false); return; }
+    const { data: adminData, error: adminError } = await supabase.from('admins').select('id').eq('user_id', user.id).single();
+    if (adminError || !adminData) {
+      setError(`无管理员权限: ${adminError?.message ?? '此账号不在admins表中'}`);
       setLoading(false);
       return;
     }
